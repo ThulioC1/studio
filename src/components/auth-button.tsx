@@ -17,11 +17,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserProfileSettings } from './user-profile-settings';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export function AuthButton() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
+  const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
 
   const handleLogin = async () => {
@@ -37,8 +39,20 @@ export function AuthButton() {
         photoURL: user.photoURL,
         updatedAt: serverTimestamp(),
       }, { merge: true });
-    } catch (error) {
-      console.error("Erro ao fazer login", error);
+    } catch (error: any) {
+      if (error.code === 'auth/operation-not-allowed') {
+        toast({
+          variant: "destructive",
+          title: "Provedor desativado",
+          description: "O login com Google precisa ser ativado no Console do Firebase em Authentication > Sign-in method.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro ao fazer login",
+          description: "Não foi possível completar a autenticação. Tente novamente.",
+        });
+      }
     }
   };
 
