@@ -1,87 +1,21 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * CONSULTA CNPJ PRO - SECURITY RULES CONFIGURATION
-     * 
-     * Core Philosophy: 
-     * This ruleset implements a strict Path-Based Ownership model. The security posture 
-     * is designed for a lean, user-centric application where the primary data 
-     * stored is the user's own profile and authentication metadata.
-     * 
-     * Data Structure: 
-     * The hierarchy is flat and predictable, with all user-specific data located 
-     * at `/user_profiles/{userId}`. The {userId} wildcard is required to match 
-     * the Firebase Authentication UID.
-     * 
-     * Key Security Decisions:
-     * 1. Authorization Independence: Ownership is determined by comparing the 
-     *    authenticated user's UID directly against the document path.
-     * 2. Denormalization for Integrity: The 'externalAuthId' field is 
-     *    enforced to match the document ID during creation and remain 
-     *    immutable during updates to prevent account spoofing.
-     * 3. Prototyping Flexibility: While ownership is strictly enforced, the 
-     *    internal data schema (names, emails, etc.) is flexible to allow for 
-     *    rapid UI and feature iteration without constant rule updates.
-     * 4. No Public Access: There are no public read or write permissions 
-     *    defined; every operation requires a valid Firebase Auth session.
-     */
-
-    // --- HELPER FUNCTIONS ---
-
-    /**
-     * @description Checks if the request is made by a signed-in user.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
-
-    /**
-     * @description Checks if the authenticated user's UID matches the provided userId.
-     */
+    
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * @description Checks if a document exists and belongs to the authenticated user.
-     * Used for state-changing operations (update/delete).
-     */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-
-    // --- COLLECTION RULES ---
-
-    /**
-     * @description Rules for the UserProfile entity. Users can only manage their own profile.
-     * @path /user_profiles/{userId}
-     * @allow (get) request.auth.uid == 'user_123' requesting /user_profiles/user_123
-     * @deny (list) request.auth.uid == 'user_123' attempting to list all user profiles
-     * @principle Path-based ownership and relational integrity validation.
-     */
     match /user_profiles/{userId} {
+      allow read, write: if isOwner(userId);
       
-      // Allow the owner to retrieve their own document or list their own profile.
-      allow get, list: if isOwner(userId);
-
-      // Users can only create a profile for themselves.
-      // We enforce that the 'externalAuthId' in the data matches the document path.
-      allow create: if isOwner(userId) && request.resource.data.externalAuthId == userId;
-
-      // Users can only update their own existing profile.
-      // We ensure 'externalAuthId' is immutable to maintain the auth link.
-      allow update: if isExistingOwner(userId) && request.resource.data.externalAuthId == resource.data.externalAuthId;
-
-      // Users can only delete their own existing profile.
-      allow delete: if isExistingOwner(userId);
-    }
-
-    // --- GLOBAL DENY ---
-    // Explicitly deny any access to paths not defined above.
-    match /{document=**} {
-      allow read, write: if false;
+      match /history/{searchId} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }

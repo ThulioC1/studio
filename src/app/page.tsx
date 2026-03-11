@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -8,25 +9,41 @@ import { fetchCompanyData } from '@/services/cnpj-service';
 import { CompanyData } from '@/types/cnpj';
 import { CompanyDetails } from '@/components/company-details';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Toaster } from '@/components/ui/toaster';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AuthButton } from '@/components/auth-button';
+import { SearchHistory } from '@/components/search-history';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function Home() {
   const [cnpj, setCnpj] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [company, setCompany] = useState<CompanyData | null>(null);
+  
+  const { user } = useUser();
+  const db = useFirestore();
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!cnpj) return;
+  const handleSearch = async (targetCnpj?: string) => {
+    const searchCnpj = targetCnpj || cnpj;
+    if (!searchCnpj || searchCnpj.length < 14) return;
 
     setLoading(true);
     setError(null);
     setCompany(null);
 
     try {
-      const data = await fetchCompanyData(cnpj);
+      const data = await fetchCompanyData(searchCnpj);
       setCompany(data);
+      
+      // Salva no histórico se logado
+      if (user) {
+        addDoc(collection(db, 'user_profiles', user.uid, 'history'), {
+          cnpj: data.cnpj,
+          razaoSocial: data.razao_social,
+          timestamp: serverTimestamp()
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro inesperado.');
     } finally {
@@ -40,82 +57,106 @@ export default function Home() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-12 md:py-20">
-      <div className="flex flex-col items-center text-center space-y-6 mb-16">
-        <div className="bg-primary/10 p-4 rounded-2xl">
-          <Building className="h-10 w-10 text-primary" />
+    <main className="min-h-screen bg-background">
+      <header className="border-b bg-card/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 font-bold text-primary">
+            <Building className="h-6 w-6" />
+            <span className="hidden sm:inline">Consulta CNPJ Pro</span>
+          </div>
+          <AuthButton />
         </div>
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">
-            Consulta CNPJ Pro
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Acesse dados públicos de empresas brasileiras com rapidez e receba insights gerados por inteligência artificial.
-          </p>
-        </div>
+      </header>
 
-        <form onSubmit={handleSearch} className="w-full max-w-2xl mt-8">
-          <div className="relative group">
-            <Input
-              type="text"
-              placeholder="Digite apenas os números do CNPJ..."
-              value={cnpj}
-              onChange={(e) => formatInput(e.target.value)}
-              className="h-16 pl-14 pr-32 text-lg rounded-2xl shadow-lg border-2 border-transparent focus-visible:border-accent group-hover:border-accent/30 transition-all bg-card"
-            />
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground group-focus-within:text-accent transition-colors" />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Button 
-                type="submit" 
-                size="lg" 
-                disabled={loading || cnpj.length < 14}
-                className="h-10 px-6 rounded-xl font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-md transition-all active:scale-95"
-              >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Pesquisar'}
-              </Button>
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex flex-col items-center text-center space-y-6 mb-16">
+          <div className="space-y-2">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">
+              Busca Inteligente de Empresas
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Acesse dados oficiais da Receita Federal de forma simples e organizada.
+            </p>
+          </div>
+
+          <form 
+            onSubmit={(e) => { e.preventDefault(); handleSearch(); }} 
+            className="w-full max-w-2xl mt-8"
+          >
+            <div className="relative group">
+              <Input
+                type="text"
+                placeholder="Digite o CNPJ (apenas números)..."
+                value={cnpj}
+                onChange={(e) => formatInput(e.target.value)}
+                className="h-16 pl-14 pr-32 text-lg rounded-2xl shadow-lg border-2 border-transparent focus-visible:border-accent transition-all bg-card"
+              />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  disabled={loading || cnpj.length < 14}
+                  className="h-10 px-6 rounded-xl font-bold"
+                >
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Pesquisar'}
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
 
-        {!company && !loading && !error && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-accent/5 px-4 py-2 rounded-full border border-accent/10 mt-4">
-            <Info className="h-4 w-4" />
-            <span>Pesquise 14 dígitos para consultar.</span>
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
+          <div className="xl:col-span-3 space-y-8">
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-20 space-y-6 bg-card rounded-2xl border border-dashed">
+                <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                <p className="text-muted-foreground font-medium">Consultando base de dados...</p>
+              </div>
+            )}
+
+            {error && (
+              <Alert variant="destructive" className="animate-in slide-in-from-top-2">
+                <Search className="h-4 w-4" />
+                <AlertTitle>Erro na busca</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {company && <CompanyDetails company={company} />}
+            
+            {!company && !loading && !error && (
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground bg-accent/5 rounded-3xl border">
+                <Building className="h-16 w-16 mb-4 opacity-20" />
+                <p>Nenhuma empresa selecionada. Realize uma busca acima.</p>
+              </div>
+            )}
           </div>
-        )}
+
+          <div className="xl:col-span-1">
+            {user ? (
+              <SearchHistory onSelect={(val) => { setCnpj(val); handleSearch(val); }} />
+            ) : (
+              <Card className="bg-primary/5 border-primary/10">
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2 text-primary font-semibold">
+                    <Info className="h-4 w-4" />
+                    Histórico de Buscas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Faça login com o Google para salvar suas pesquisas e acessá-las rapidamente de qualquer lugar.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="w-full">
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-20 space-y-6">
-            <div className="relative">
-              <div className="h-20 w-20 rounded-full border-4 border-accent/20 border-t-accent animate-spin" />
-              <Building className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-accent animate-pulse" />
-            </div>
-            <div className="text-center">
-              <p className="text-xl font-bold text-primary">Buscando informações...</p>
-              <p className="text-muted-foreground">Isso pode levar alguns segundos dependendo da base de dados.</p>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="max-w-2xl mx-auto">
-            <Alert variant="destructive" className="animate-in zoom-in-95 duration-300">
-              <Search className="h-4 w-4" />
-              <AlertTitle>Erro na busca</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          </div>
-        )}
-
-        {company && <CompanyDetails company={company} />}
-      </div>
-
-      <Toaster />
-      
-      <footer className="mt-20 pt-8 border-t text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} Consulta CNPJ Pro. Dados fornecidos por bases públicas da Receita Federal.</p>
+      <footer className="mt-20 py-12 border-t text-center text-sm text-muted-foreground bg-card/30">
+        <p>© {new Date().getFullYear()} Consulta CNPJ Pro. Dados públicos da Receita Federal do Brasil.</p>
       </footer>
     </main>
   );

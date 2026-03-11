@@ -1,77 +1,41 @@
+
 {
   "entities": {
     "UserProfile": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
+      "description": "Perfil do usuário contendo informações básicas e preferências.",
       "type": "object",
-      "description": "Represents a user's profile within the Consulta CNPJ Pro application. This entity stores user-specific data and preferences, and is linked to an external authentication system (e.g., Google) for login management. It supports functionalities like editing user details and profile deletion.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the UserProfile entity."
-        },
-        "externalAuthId": {
-          "type": "string",
-          "description": "Unique identifier provided by the external authentication system (e.g., Google's user ID) that links to this user profile. (Relationship: ExternalAuthSystem 1:1 UserProfile)"
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's primary email address, typically obtained from the external authentication provider.",
-          "format": "email"
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The user's first name."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The user's last name."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the user profile was first created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the user profile was last updated.",
-          "format": "date-time"
-        }
+        "displayName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "externalAuthId",
-        "email",
-        "createdAt",
-        "updatedAt"
-      ]
+      "required": ["email", "createdAt"]
+    },
+    "SearchHistory": {
+      "title": "SearchHistory",
+      "description": "Registro de uma busca realizada pelo usuário.",
+      "type": "object",
+      "properties": {
+        "cnpj": { "type": "string" },
+        "razaoSocial": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["cnpj", "razaoSocial", "timestamp"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["google", "password"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/user_profiles/{userId}",
-        "definition": {
-          "entityName": "UserProfile",
-          "schema": {
-            "$ref": "#/backend/entities/UserProfile"
-          },
-          "description": "Stores individual user profiles. Each document in this collection represents a single user and is accessible only by that user. Includes denormalized 'externalAuthId' (matching the userId path parameter and request.auth.uid) for robust authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the authenticated user (matches request.auth.uid)."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure for the 'Consulta CNPJ Pro' application is designed to be minimal, secure, and highly scalable, focusing primarily on user profile management and adhering strictly to the core design principles. Given the application's primary function of searching public CNPJ data via an external API, the data itself is not stored in Firestore. The only application-specific data stored pertains to user profiles for login and account management.\n\n**Authorization Independence:** The key to authorization independence for the `UserProfile` entity lies in its path-based ownership: `/user_profiles/{userId}`. Each `UserProfile` document is uniquely identified and owned by the authenticated user whose UID matches `{userId}`. Additionally, the `externalAuthId` field within the `UserProfile` document explicitly stores this same user ID (`request.auth.uid`). This denormalization means that security rules can determine ownership solely by comparing `request.auth.uid` with the `{userId}` wildcard in the path and the `externalAuthId` field within the document. No `get()` calls to parent or related documents are ever necessary to validate authorization for `UserProfile` operations, enabling atomic creation, updates, and deletes.\n\n**Support for QAPs (Rules are not Filters):** This structure inherently supports Query-As-Permissions (QAPs) by leveraging structural segregation and path-based ownership. Since each `UserProfile` document is directly owned by a specific user at a predictable path (`/user_profiles/{request.auth.uid}`), `list` operations against `/user_profiles` can be strictly controlled. A user can only access (get or list) their *own* profile, effectively making any query for another user's profile return no results, or more securely, be outright denied by rules like `allow read: if request.auth.uid == userId`. This means the application layer does not need to filter results; the security rules prevent unauthorized data from ever being returned, making `list` operations secure and efficient without relying on complex rule logic to filter results."
+    "/user_profiles/{userId}": {
+      "schema": "#/backend/entities/UserProfile",
+      "description": "Documento do perfil do usuário."
+    },
+    "/user_profiles/{userId}/history/{searchId}": {
+      "schema": "#/backend/entities/SearchHistory",
+      "description": "Histórico de buscas do usuário."
+    }
   }
 }
