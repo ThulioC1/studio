@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react';
@@ -14,6 +13,7 @@ import { AuthButton } from '@/components/auth-button';
 import { SearchHistory } from '@/components/search-history';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [cnpj, setCnpj] = useState('');
@@ -23,17 +23,27 @@ export default function Home() {
   
   const { user } = useUser();
   const db = useFirestore();
+  const { toast } = useToast();
 
   const handleSearch = async (targetCnpj?: string) => {
     const searchCnpj = targetCnpj || cnpj;
-    if (!searchCnpj || searchCnpj.length < 14) return;
+    const cleaned = searchCnpj.replace(/\D/g, '');
+    
+    if (!cleaned || cleaned.length < 14) {
+      toast({
+        variant: "destructive",
+        title: "CNPJ incompleto",
+        description: "Digite os 14 números do CNPJ para realizar a busca."
+      });
+      return;
+    }
 
     setLoading(true);
     setError(null);
     setCompany(null);
 
     try {
-      const data = await fetchCompanyData(searchCnpj);
+      const data = await fetchCompanyData(cleaned);
       setCompany(data);
       
       // Salva no histórico se logado
@@ -42,10 +52,17 @@ export default function Home() {
           cnpj: data.cnpj,
           razaoSocial: data.razao_social,
           timestamp: serverTimestamp()
+        }).catch(() => {
+          // Erro silencioso ao salvar histórico não deve travar a busca
         });
       }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro inesperado.');
+      toast({
+        variant: "destructive",
+        title: "Erro na busca",
+        description: err.message || "Não foi possível carregar os dados."
+      });
     } finally {
       setLoading(false);
     }
@@ -111,14 +128,14 @@ export default function Home() {
             {loading && (
               <div className="flex flex-col items-center justify-center py-20 space-y-6 bg-card rounded-2xl border border-dashed">
                 <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-muted-foreground font-medium">Consultando base de dados...</p>
+                <p className="text-muted-foreground font-medium">Consultando base de dados oficial...</p>
               </div>
             )}
 
             {error && (
               <Alert variant="destructive" className="animate-in slide-in-from-top-2">
                 <Search className="h-4 w-4" />
-                <AlertTitle>Erro na busca</AlertTitle>
+                <AlertTitle>Não foi possível completar a busca</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
