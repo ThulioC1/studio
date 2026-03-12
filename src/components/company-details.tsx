@@ -1,12 +1,11 @@
-
 "use client"
 
-import { CompanyData, formatCnpj, formatCurrency, formatDate } from '@/types/cnpj';
+import { CompanyData, formatCnpj, formatCurrency, formatDate, formatPhone } from '@/types/cnpj';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataField } from './data-field';
 import { Badge } from '@/components/ui/badge';
-import { Building2, MapPin, Users, Activity, FileText } from 'lucide-react';
+import { Building2, MapPin, Users, Activity, Phone } from 'lucide-react';
 
 interface CompanyDetailsProps {
   company: CompanyData;
@@ -31,10 +30,14 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
 
       <div className="w-full">
         <Tabs defaultValue="geral" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full mb-6">
+          <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-6">
             <TabsTrigger value="geral" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span>Geral</span>
+            </TabsTrigger>
+            <TabsTrigger value="contato" className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              <span>Contato</span>
             </TabsTrigger>
             <TabsTrigger value="atividades" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
@@ -65,12 +68,30 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
             </Card>
           </TabsContent>
 
+          <TabsContent value="contato" className="space-y-4">
+            <Card>
+              <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DataField 
+                  label="E-mail" 
+                  value={company.email?.toLowerCase()} 
+                />
+                <DataField 
+                  label="Telefone Principal" 
+                  value={formatPhone(undefined, company.ddd_telefone_1)} 
+                />
+                <DataField 
+                  label="Telefone Secundário" 
+                  value={formatPhone(undefined, company.ddd_telefone_2)} 
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="atividades" className="space-y-4">
             <Card>
               <CardContent className="p-6 space-y-6">
                 <div>
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-primary">
-                    <FileText className="h-4 w-4" />
                     Atividade Principal
                   </h3>
                   <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
