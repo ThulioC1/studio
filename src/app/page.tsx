@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -46,15 +47,12 @@ export default function Home() {
       const data = await fetchCompanyData(cleaned);
       setCompany(data);
       
-      // Salva no histórico se logado
       if (user) {
         addDoc(collection(db, 'user_profiles', user.uid, 'history'), {
           cnpj: data.cnpj,
           razaoSocial: data.razao_social,
           timestamp: serverTimestamp()
-        }).catch(() => {
-          // Erro silencioso ao salvar histórico não deve travar a busca
-        });
+        }).catch(() => {});
       }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro inesperado.');
@@ -74,8 +72,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 backdrop-blur-md sticky top-0 z-50">
+    <main className="min-h-screen bg-background print:bg-white print:min-h-0">
+      <header className="border-b bg-card/50 backdrop-blur-md sticky top-0 z-50 print:hidden">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-primary">
             <Building className="h-6 w-6" />
@@ -85,8 +83,8 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col items-center text-center space-y-6 mb-16">
+      <div className="max-w-7xl mx-auto px-4 py-12 print:py-0 print:px-0">
+        <div className="flex flex-col items-center text-center space-y-6 mb-16 print:hidden">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">
               Busca Inteligente de Empresas
@@ -124,16 +122,16 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
-          <div className="xl:col-span-3 space-y-8">
+          <div className="xl:col-span-3 space-y-8 print:col-span-4">
             {loading && (
-              <div className="flex flex-col items-center justify-center py-20 space-y-6 bg-card rounded-2xl border border-dashed">
+              <div className="flex flex-col items-center justify-center py-20 space-y-6 bg-card rounded-2xl border border-dashed print:hidden">
                 <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
                 <p className="text-muted-foreground font-medium">Consultando base de dados oficial...</p>
               </div>
             )}
 
             {error && (
-              <Alert variant="destructive" className="animate-in slide-in-from-top-2">
+              <Alert variant="destructive" className="animate-in slide-in-from-top-2 print:hidden">
                 <Search className="h-4 w-4" />
                 <AlertTitle>Não foi possível completar a busca</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
@@ -143,14 +141,14 @@ export default function Home() {
             {company && <CompanyDetails company={company} />}
             
             {!company && !loading && !error && (
-              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground bg-accent/5 rounded-3xl border">
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground bg-accent/5 rounded-3xl border print:hidden">
                 <Building className="h-16 w-16 mb-4 opacity-20" />
                 <p>Nenhuma empresa selecionada. Realize uma busca acima.</p>
               </div>
             )}
           </div>
 
-          <div className="xl:col-span-1">
+          <div className="xl:col-span-1 print:hidden">
             {user ? (
               <SearchHistory onSelect={(val) => { setCnpj(val); handleSearch(val); }} />
             ) : (
@@ -172,7 +170,7 @@ export default function Home() {
         </div>
       </div>
 
-      <footer className="mt-20 py-12 border-t text-center text-sm text-muted-foreground bg-card/30">
+      <footer className="mt-20 py-12 border-t text-center text-sm text-muted-foreground bg-card/30 print:hidden">
         <p>© {new Date().getFullYear()} Consulta CNPJ Pro. Dados públicos da Receita Federal do Brasil.</p>
       </footer>
     </main>
