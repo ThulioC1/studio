@@ -5,19 +5,21 @@ import { cn } from '@/lib/utils';
 interface DataFieldProps {
   label: string;
   value: string | number | undefined;
+  copyValue?: string | number;
   allowCopy?: boolean;
   className?: string;
 }
 
-export function DataField({ label, value, allowCopy = true, className }: DataFieldProps) {
+export function DataField({ label, value, copyValue, allowCopy = true, className }: DataFieldProps) {
   const { toast } = useToast();
   const displayValue = value === undefined || value === null || value === '' ? '-' : String(value);
+  const textToCopy = copyValue !== undefined ? String(copyValue) : displayValue;
 
   const handleCopy = async () => {
     if (!allowCopy || displayValue === '-') return;
     
     try {
-      await navigator.clipboard.writeText(displayValue);
+      await navigator.clipboard.writeText(textToCopy);
       toast({
         title: "Copiado!",
         description: `${label} copiado para a área de transferência.`,
@@ -50,7 +52,7 @@ export function DataField({ label, value, allowCopy = true, className }: DataFie
         </span>
         {allowCopy && displayValue !== '-' && (
           <CopyButton 
-            value={displayValue} 
+            value={textToCopy} 
             className="h-6 w-6 absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity" 
           />
         )}

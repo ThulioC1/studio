@@ -1,4 +1,3 @@
-
 "use client"
 
 import { CompanyData, formatCnpj, formatCurrency, formatDate, formatPhone } from '@/types/cnpj';
@@ -73,7 +72,7 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
             <Card>
               <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DataField label="Razão Social" value={company.razao_social} />
-                <DataField label="CNPJ" value={formatCnpj(company.cnpj)} />
+                <DataField label="CNPJ" value={formatCnpj(company.cnpj)} copyValue={company.cnpj} />
                 <DataField label="Nome Fantasia" value={company.nome_fantasia} />
                 <DataField label="Data de Abertura" value={formatDate(company.data_inicio_atividade)} />
                 <DataField label="Natureza Jurídica" value={company.natureza_juridica} />
