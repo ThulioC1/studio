@@ -9,6 +9,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { generateBarcode128C } from '@/lib/barcode-utils';
 
 export function DanfeLookup() {
   const [chave, setChave] = useState('');
@@ -131,6 +132,20 @@ export function DanfeLookup() {
     window.print();
   };
 
+  // Componente interno para renderizar o código de barras funcional
+  const Barcode = ({ code }: { code: string }) => {
+    const binary = generateBarcode128C(code);
+    if (!binary) return <div className="h-8 w-full bg-gray-100 flex items-center justify-center text-[5px]">Erro ao gerar código</div>;
+
+    return (
+      <svg className="w-full h-8" viewBox={`0 0 ${binary.length} 40`} preserveAspectRatio="none">
+        {binary.split('').map((bit, i) => (
+          bit === '1' ? <rect key={i} x={i} y="0" width="1" height="40" fill="black" /> : null
+        ))}
+      </svg>
+    );
+  };
+
   return (
     <div className="w-full space-y-8">
       <div className="flex flex-col items-center mb-12 print:hidden">
@@ -241,16 +256,7 @@ export function DanfeLookup() {
                   </div>
                   <div className="col-span-5 p-2 flex flex-col justify-between">
                     <div className="w-full bg-white h-10 mb-1 flex items-center justify-center overflow-hidden">
-                      {/* Código de Barras (SVG para garantir impressão) */}
-                      <svg className="w-full h-8" viewBox="0 0 440 40" preserveAspectRatio="none">
-                        {Array.from({ length: 88 }).map((_, i) => {
-                          const isBlack = (i * 7) % 13 < 7; 
-                          const width = (i * 3) % 5 + 1;
-                          return isBlack ? (
-                            <rect key={i} x={i * 5} y="0" width={width} height="40" fill="black" />
-                          ) : null;
-                        })}
-                      </svg>
+                      <Barcode code={danfeData.chaveAcesso} />
                     </div>
                     <div>
                       <span className="text-[6px] font-bold uppercase block">Chave de Acesso</span>
