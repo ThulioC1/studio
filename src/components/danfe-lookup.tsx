@@ -1,10 +1,11 @@
+
 "use client"
 
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Loader2, FileText, Printer, ScanBarcode, AlertCircle, Code, FileSearch } from 'lucide-react';
+import { Search, Loader2, FileText, Printer, ScanBarcode, AlertCircle, Code, FileSearch, Info } from 'lucide-react';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -137,7 +138,7 @@ export function DanfeLookup() {
             aliqIpi: "0,00" 
           }
         ],
-        infoComplementar: "Nota fiscal consultada parcialmente via chave. Dados do emitente reais. Conteúdo da nota gerado para demonstração."
+        infoComplementar: "Atenção: Esta é uma pré-visualização baseada no Emitente Real. Para obter o documento com itens e impostos 100% autênticos, utilize a aba 'Por XML'."
       };
 
       setDanfeData(mockData);
@@ -215,37 +216,27 @@ export function DanfeLookup() {
   return (
     <div className="w-full space-y-8">
       <div className="flex flex-col items-center mb-6 print:hidden">
-        <Tabs defaultValue="key" className="w-full max-w-2xl">
+        <Tabs defaultValue="xml" className="w-full max-w-2xl">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="key" className="gap-2">
-              <FileSearch className="h-4 w-4" />
-              Por Chave
-            </TabsTrigger>
             <TabsTrigger value="xml" className="gap-2">
               <Code className="h-4 w-4" />
-              Por XML (Real)
+              Por XML (Dados Reais)
+            </TabsTrigger>
+            <TabsTrigger value="key" className="gap-2">
+              <FileSearch className="h-4 w-4" />
+              Por Chave (Híbrido)
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="key">
-            <form onSubmit={(e) => { e.preventDefault(); handleSearchByKey(); }} className="relative group">
-              <Input
-                placeholder="Digite a Chave de Acesso (44 dígitos)..."
-                value={chave}
-                onChange={(e) => setChave(e.target.value.replace(/\D/g, '').slice(0, 44))}
-                className="h-16 pl-14 pr-32 text-lg rounded-2xl shadow-lg border-2 border-transparent focus-visible:border-accent transition-all bg-card"
-              />
-              <ScanBarcode className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Button type="submit" size="lg" disabled={loading || chave.length < 44} className="h-10 px-6 rounded-xl font-bold">
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Consultar'}
-                </Button>
-              </div>
-            </form>
-          </TabsContent>
-
           <TabsContent value="xml">
             <div className="space-y-4">
+              <Alert className="bg-primary/5 border-primary/20">
+                <Info className="h-4 w-4 text-primary" />
+                <AlertTitle>Recomendado para Documentos Oficiais</AlertTitle>
+                <AlertDescription className="text-xs">
+                  A geração via XML é a única que garante 100% de fidelidade nos itens e impostos, conforme o arquivo assinado digitalmente.
+                </AlertDescription>
+              </Alert>
               <Textarea 
                 placeholder="Cole o conteúdo XML completo aqui..." 
                 className="min-h-[150px] font-mono text-xs shadow-lg rounded-2xl p-4 bg-card"
@@ -254,12 +245,34 @@ export function DanfeLookup() {
               />
               <Button 
                 onClick={handleGenerateFromXml} 
-                className="w-full h-12 rounded-xl font-bold gap-2"
+                className="w-full h-12 rounded-xl font-bold gap-2 text-lg"
                 disabled={loading || !xmlContent}
               >
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileText className="h-5 w-5" />}
-                Gerar DANFE Completo (Real)
+                Gerar DANFE 100% Real
               </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="key">
+            <div className="space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleSearchByKey(); }} className="relative group">
+                <Input
+                  placeholder="Digite a Chave de Acesso (44 dígitos)..."
+                  value={chave}
+                  onChange={(e) => setChave(e.target.value.replace(/\D/g, '').slice(0, 44))}
+                  className="h-16 pl-14 pr-32 text-lg rounded-2xl shadow-lg border-2 border-transparent focus-visible:border-accent transition-all bg-card"
+                />
+                <ScanBarcode className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <Button type="submit" size="lg" disabled={loading || chave.length < 44} className="h-10 px-6 rounded-xl font-bold">
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Consultar'}
+                  </Button>
+                </div>
+              </form>
+              <p className="text-[10px] text-muted-foreground text-center">
+                * A busca por chave identifica o emitente real, mas itens e impostos são simulados devido a restrições de privacidade da SEFAZ.
+              </p>
             </div>
           </TabsContent>
         </Tabs>
@@ -500,7 +513,7 @@ export function DanfeLookup() {
             </div>
             <p className="font-bold text-xl text-foreground">Pronto para Consultar</p>
             <p className="text-sm max-w-sm text-center mt-2">
-              Utilize a Chave de Acesso para uma consulta rápida ou cole o XML para gerar o documento completo com dados reais.
+              Utilize o XML para gerar o documento completo com dados reais ou a Chave de Acesso para uma consulta híbrida.
             </p>
           </div>
         )}
