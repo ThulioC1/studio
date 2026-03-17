@@ -23,16 +23,6 @@
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["cnpj", "razaoSocial", "timestamp"]
-    },
-    "DanfeHistory": {
-      "title": "DanfeHistory",
-      "description": "Registro de uma busca de nota fiscal (DANFE).",
-      "type": "object",
-      "properties": {
-        "chaveAcesso": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["chaveAcesso", "timestamp"]
     }
   },
   "auth": {
@@ -46,10 +36,6 @@
     "/user_profiles/{userId}/history/{searchId}": {
       "schema": "#/backend/entities/SearchHistory",
       "description": "Histórico de buscas de CNPJ."
-    },
-    "/user_profiles/{userId}/danfe_history/{searchId}": {
-      "schema": "#/backend/entities/DanfeHistory",
-      "description": "Histórico de buscas de DANFE."
     }
   }
 }
