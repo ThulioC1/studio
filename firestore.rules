@@ -16,6 +16,10 @@ service cloud.firestore {
       match /history/{searchId} {
         allow read, write: if isOwner(userId);
       }
+      
+      match /danfe_history/{searchId} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }
