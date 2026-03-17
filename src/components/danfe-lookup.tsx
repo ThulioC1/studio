@@ -132,13 +132,12 @@ export function DanfeLookup() {
     window.print();
   };
 
-  // Componente interno para renderizar o código de barras funcional
   const Barcode = ({ code }: { code: string }) => {
     const binary = generateBarcode128C(code);
-    if (!binary) return <div className="h-8 w-full bg-gray-100 flex items-center justify-center text-[5px]">Erro ao gerar código</div>;
+    if (!binary) return <div className="h-10 w-full bg-gray-100 flex items-center justify-center text-[6px]">Erro ao gerar código</div>;
 
     return (
-      <svg className="w-full h-8" viewBox={`0 0 ${binary.length} 40`} preserveAspectRatio="none">
+      <svg className="w-full h-10" viewBox={`0 0 ${binary.length} 40`} preserveAspectRatio="none">
         {binary.split('').map((bit, i) => (
           bit === '1' ? <rect key={i} x={i} y="0" width="1" height="40" fill="black" /> : null
         ))}
@@ -208,290 +207,281 @@ export function DanfeLookup() {
               </Button>
             </div>
 
-            {/* DANFE OFICIAL LAYOUT */}
-            <div className="bg-white text-black p-4 md:p-8 border shadow-sm rounded-xl print:shadow-none print:border-none print:p-0 print:rounded-none overflow-x-auto print:overflow-visible">
-              <div className="min-w-[780px] print:min-w-0 print:w-full border border-black p-1 font-sans text-[7px] print:text-[6.5px]">
+            <div className="bg-white text-black p-2 md:p-4 border shadow-sm rounded-xl print:shadow-none print:border-none print:p-0 print:rounded-none overflow-x-auto print:overflow-visible">
+              <div className="min-w-[800px] print:min-w-0 print:w-full border border-black p-1 font-sans text-[8.5px] print:text-[8px]">
                 
-                {/* 1. Comprovante de Entrega */}
                 <div className="border border-black mb-1 p-1">
                   <div className="grid grid-cols-12 gap-1 border-b border-black pb-1 mb-1">
                     <div className="col-span-10 border-r border-black pr-2">
-                      <span className="font-bold uppercase block text-[6.5px]">Recebemos de {danfeData.emitente.nome} os produtos e/ou serviços constantes da nota fiscal eletrônica indicada ao lado</span>
+                      <span className="font-bold uppercase block text-[8px]">Recebemos de {danfeData.emitente.nome} os produtos e/ou serviços constantes da nota fiscal eletrônica indicada ao lado</span>
                       <div className="grid grid-cols-2 mt-4">
-                        <div className="border-t border-black pt-1"><span className="uppercase text-[6px]">DATA DE RECEBIMENTO</span></div>
-                        <div className="border-t border-black border-l border-black pl-2 pt-1 ml-2"><span className="uppercase text-[6px]">IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR</span></div>
+                        <div className="border-t border-black pt-1"><span className="uppercase text-[7.5px]">DATA DE RECEBIMENTO</span></div>
+                        <div className="border-t border-black border-l border-black pl-2 pt-1 ml-2"><span className="uppercase text-[7.5px]">IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR</span></div>
                       </div>
                     </div>
                     <div className="col-span-2 flex flex-col items-center justify-center text-center">
-                      <h2 className="text-[9px] font-black">NF-e</h2>
+                      <h2 className="text-[11px] font-black">NF-e</h2>
                       <p className="font-bold">Nº {danfeData.numero}</p>
-                      <p className="font-bold text-[6.5px]">Série {danfeData.serie}</p>
+                      <p className="font-bold text-[8px]">Série {danfeData.serie}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* 2. Cabeçalho Principal */}
                 <div className="grid grid-cols-12 border border-black mb-1">
                   <div className="col-span-4 p-2 flex flex-col items-center justify-center border-r border-black">
-                    <span className="text-[6px] font-bold self-start uppercase">Identificação do Emitente</span>
+                    <span className="text-[7.5px] font-bold self-start uppercase">Identificação do Emitente</span>
                     <div className="text-center py-2">
-                      <h1 className="text-[11px] font-black uppercase leading-tight">{danfeData.emitente.nome}</h1>
-                      <p className="text-[6.5px]">{danfeData.emitente.endereco}</p>
-                      <p className="text-[6.5px]">{danfeData.emitente.bairro} - {danfeData.emitente.cep}</p>
-                      <p className="text-[6.5px] font-bold">{danfeData.emitente.cidade} - Fone: {danfeData.emitente.fone}</p>
+                      <h1 className="text-[14px] font-black uppercase leading-tight">{danfeData.emitente.nome}</h1>
+                      <p className="text-[8px]">{danfeData.emitente.endereco}</p>
+                      <p className="text-[8px]">{danfeData.emitente.bairro} - {danfeData.emitente.cep}</p>
+                      <p className="text-[8.5px] font-bold">{danfeData.emitente.cidade} - Fone: {danfeData.emitente.fone}</p>
                     </div>
                   </div>
                   <div className="col-span-3 p-2 border-r border-black flex flex-col items-center justify-center text-center">
-                    <h2 className="text-[12px] font-black">DANFE</h2>
-                    <p className="text-[6.5px] font-bold leading-tight">Documento Auxiliar da Nota Fiscal Eletrônica</p>
+                    <h2 className="text-[16px] font-black">DANFE</h2>
+                    <p className="text-[8px] font-bold leading-tight">Documento Auxiliar da Nota Fiscal Eletrônica</p>
                     <div className="flex gap-4 mt-2 border border-black p-1 px-4">
-                      <div><span className="block text-[6px]">0-ENTRADA</span><span className="block text-[6px]">1-SAÍDA</span></div>
-                      <span className="text-[12px] font-bold">1</span>
+                      <div><span className="block text-[7.5px]">0-ENTRADA</span><span className="block text-[7.5px]">1-SAÍDA</span></div>
+                      <span className="text-[16px] font-bold">1</span>
                     </div>
                     <div className="mt-2">
-                      <p className="font-bold text-[8px]">Nº {danfeData.numero}</p>
-                      <p className="font-bold text-[8px]">SÉRIE {danfeData.serie}</p>
-                      <p className="text-[6.5px]">Folha {danfeData.folha}</p>
+                      <p className="font-bold text-[10px]">Nº {danfeData.numero}</p>
+                      <p className="font-bold text-[10px]">SÉRIE {danfeData.serie}</p>
+                      <p className="text-[8px]">Folha {danfeData.folha}</p>
                     </div>
                   </div>
                   <div className="col-span-5 p-2 flex flex-col justify-between">
-                    <div className="w-full bg-white h-10 mb-1 flex items-center justify-center overflow-hidden">
+                    <div className="w-full bg-white h-12 mb-1 flex items-center justify-center overflow-hidden">
                       <Barcode code={danfeData.chaveAcesso} />
                     </div>
                     <div>
-                      <span className="text-[6px] font-bold uppercase block">Chave de Acesso</span>
-                      <p className="text-[7.5px] font-mono tracking-tighter text-center border border-black p-1 bg-gray-50">{danfeData.chaveAcesso.match(/.{1,4}/g)?.join(' ')}</p>
-                      <p className="text-[6.5px] text-center mt-1">Consulta de autenticidade no portal nacional da NF-e<br/><span className="underline">www.nfe.fazenda.gov.br/portal</span> ou no site da Sefaz Autorizadora</p>
+                      <span className="text-[7.5px] font-bold uppercase block">Chave de Acesso</span>
+                      <p className="text-[9px] font-mono tracking-tighter text-center border border-black p-1 bg-gray-50">{danfeData.chaveAcesso.match(/.{1,4}/g)?.join(' ')}</p>
+                      <p className="text-[8px] text-center mt-1">Consulta de autenticidade no portal nacional da NF-e<br/><span className="underline">www.nfe.fazenda.gov.br/portal</span> ou no site da Sefaz Autorizadora</p>
                     </div>
                   </div>
                 </div>
 
-                {/* 3. Natureza e Protocolo */}
                 <div className="grid grid-cols-12 border border-black mb-1">
                   <div className="col-span-7 p-1 border-r border-black">
-                    <span className="block text-[6px]">NATUREZA DA OPERAÇÃO</span>
-                    <span className="font-bold text-[7.5px] uppercase">{danfeData.naturezaOperacao}</span>
+                    <span className="block text-[7.5px]">NATUREZA DA OPERAÇÃO</span>
+                    <span className="font-bold text-[9px] uppercase">{danfeData.naturezaOperacao}</span>
                   </div>
                   <div className="col-span-5 p-1">
-                    <span className="block text-[6px]">PROTOCOLO DE AUTORIZAÇÃO DE USO</span>
-                    <span className="font-bold text-[7.5px]">{danfeData.protocoloAutorizacao}</span>
+                    <span className="block text-[7.5px]">PROTOCOLO DE AUTORIZAÇÃO DE USO</span>
+                    <span className="font-bold text-[9px]">{danfeData.protocoloAutorizacao}</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-4 border border-black mb-1">
                   <div className="p-1 border-r border-black">
-                    <span className="block text-[6px]">INSCRIÇÃO ESTADUAL</span>
-                    <span className="font-bold text-[7.5px]">{danfeData.inscricaoEstadual}</span>
+                    <span className="block text-[7.5px]">INSCRIÇÃO ESTADUAL</span>
+                    <span className="font-bold text-[9px]">{danfeData.inscricaoEstadual}</span>
                   </div>
                   <div className="p-1 border-r border-black">
-                    <span className="block text-[6px]">INSCRIÇÃO ESTADUAL DO SUBST. TRIB.</span>
-                    <span className="font-bold text-[7.5px]">-</span>
+                    <span className="block text-[7.5px]">INSCRIÇÃO ESTADUAL DO SUBST. TRIB.</span>
+                    <span className="font-bold text-[9px]">-</span>
                   </div>
                   <div className="p-1 border-r border-black">
-                    <span className="block text-[6px]">INSCRIÇÃO MUNICIPAL</span>
-                    <span className="font-bold text-[7.5px]">{danfeData.inscricaoMunicipal}</span>
+                    <span className="block text-[7.5px]">INSCRIÇÃO MUNICIPAL</span>
+                    <span className="font-bold text-[9px]">{danfeData.inscricaoMunicipal}</span>
                   </div>
                   <div className="p-1">
-                    <span className="block text-[6px]">CNPJ</span>
-                    <span className="font-bold text-[7.5px]">{danfeData.emitente.cnpj}</span>
+                    <span className="block text-[7.5px]">CNPJ</span>
+                    <span className="font-bold text-[9px]">{danfeData.emitente.cnpj}</span>
                   </div>
                 </div>
 
-                {/* 4. Destinatário */}
-                <h4 className="font-bold text-[6.5px] uppercase mt-1">Destinatário / Remetente</h4>
+                <h4 className="font-bold text-[8.5px] uppercase mt-1">Destinatário / Remetente</h4>
                 <div className="border border-black mb-1">
                   <div className="grid grid-cols-12 border-b border-black">
                     <div className="col-span-8 p-1 border-r border-black">
-                      <span className="block text-[6px]">NOME / RAZÃO SOCIAL</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.destinatario.nome}</span>
+                      <span className="block text-[7.5px]">NOME / RAZÃO SOCIAL</span>
+                      <span className="font-bold text-[10px] uppercase">{danfeData.destinatario.nome}</span>
                     </div>
                     <div className="col-span-2 p-1 border-r border-black">
-                      <span className="block text-[6px]">CNPJ / CPF</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.destinatario.cnpjCpf}</span>
+                      <span className="block text-[7.5px]">CNPJ / CPF</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.destinatario.cnpjCpf}</span>
                     </div>
                     <div className="col-span-2 p-1">
-                      <span className="block text-[6px]">DATA DA EMISSÃO</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.dataEmissao}</span>
+                      <span className="block text-[7.5px]">DATA DA EMISSÃO</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.dataEmissao}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-12 border-b border-black">
                     <div className="col-span-6 p-1 border-r border-black">
-                      <span className="block text-[6px]">ENDEREÇO</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.destinatario.endereco}</span>
+                      <span className="block text-[7.5px]">ENDEREÇO</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.destinatario.endereco}</span>
                     </div>
                     <div className="col-span-3 p-1 border-r border-black">
-                      <span className="block text-[6px]">BAIRRO / DISTRITO</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.destinatario.bairro}</span>
+                      <span className="block text-[7.5px]">BAIRRO / DISTRITO</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.destinatario.bairro}</span>
                     </div>
                     <div className="col-span-2 p-1 border-r border-black">
-                      <span className="block text-[6px]">CEP</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.destinatario.cep}</span>
+                      <span className="block text-[7.5px]">CEP</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.destinatario.cep}</span>
                     </div>
                     <div className="col-span-1 p-1">
-                      <span className="block text-[6px]">DATA SAÍDA</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.dataEmissao}</span>
+                      <span className="block text-[7.5px]">DATA SAÍDA</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.dataEmissao}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-12">
                     <div className="col-span-5 p-1 border-r border-black">
-                      <span className="block text-[6px]">MUNICÍPIO</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.destinatario.cidade}</span>
+                      <span className="block text-[7.5px]">MUNICÍPIO</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.destinatario.cidade}</span>
                     </div>
                     <div className="col-span-1 p-1 border-r border-black">
-                      <span className="block text-[6px]">UF</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.destinatario.uf}</span>
+                      <span className="block text-[7.5px]">UF</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.destinatario.uf}</span>
                     </div>
                     <div className="col-span-2 p-1 border-r border-black">
-                      <span className="block text-[6px]">FONE / FAX</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.destinatario.fone}</span>
+                      <span className="block text-[7.5px]">FONE / FAX</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.destinatario.fone}</span>
                     </div>
                     <div className="col-span-3 p-1 border-r border-black">
-                      <span className="block text-[6px]">INSCRIÇÃO ESTADUAL</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.destinatario.ie}</span>
+                      <span className="block text-[7.5px]">INSCRIÇÃO ESTADUAL</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.destinatario.ie}</span>
                     </div>
                     <div className="col-span-1 p-1">
-                      <span className="block text-[6px]">HORA SAÍDA</span>
-                      <span className="font-bold text-[7.5px]">00:00:00</span>
+                      <span className="block text-[7.5px]">HORA SAÍDA</span>
+                      <span className="font-bold text-[9.5px]">00:00:00</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 6. Cálculo do Imposto */}
-                <h4 className="font-bold text-[6.5px] uppercase mt-1">Cálculo do Imposto</h4>
+                <h4 className="font-bold text-[8.5px] uppercase mt-1">Cálculo do Imposto</h4>
                 <div className="border border-black mb-1">
                   <div className="grid grid-cols-10 border-b border-black">
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">BASE CÁLC. ICMS</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.bcIcms}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">VALOR DO ICMS</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vIcms}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">B. CÁLC. ICMS ST</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.bcIcmsSt}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">VALOR ICMS ST</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vIcmsSt}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. IMP. IMPORT.</span><span className="block text-[7.5px] text-right font-bold">0,00</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. ICMS UF REMET.</span><span className="block text-[7.5px] text-right font-bold">0,00</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. FCP UF DEST.</span><span className="block text-[7.5px] text-right font-bold">0,00</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. PIS</span><span className="block text-[7.5px] text-right font-bold">0,00</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. COFINS</span><span className="block text-[7.5px] text-right font-bold">0,00</span></div>
-                    <div className="p-1"><span className="block text-[5.5px] truncate">V. TOTAL PROD.</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vProd}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">BASE CÁLC. ICMS</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.bcIcms}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">VALOR DO ICMS</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vIcms}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">B. CÁLC. ICMS ST</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.bcIcmsSt}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">VALOR ICMS ST</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vIcmsSt}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. IMP. IMPORT.</span><span className="block text-[9px] text-right font-bold">0,00</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. ICMS UF REMET.</span><span className="block text-[9px] text-right font-bold">0,00</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. FCP UF DEST.</span><span className="block text-[9px] text-right font-bold">0,00</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. PIS</span><span className="block text-[9px] text-right font-bold">0,00</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. COFINS</span><span className="block text-[9px] text-right font-bold">0,00</span></div>
+                    <div className="p-1"><span className="block text-[7px] truncate">V. TOTAL PROD.</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vProd}</span></div>
                   </div>
                   <div className="grid grid-cols-10">
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">VALOR DO FRETE</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vFrete}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">VALOR DO SEGURO</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vSeguro}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">DESCONTO</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vDesc}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">OUTRAS DESP.</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vOutros}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">VALOR DO IPI</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vIpi}</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. ICMS UF DEST.</span><span className="block text-[7.5px] text-right font-bold">0,00</span></div>
-                    <div className="p-1 border-r border-black"><span className="block text-[5.5px] truncate">V. TOT. TRIB.</span><span className="block text-[7.5px] text-right font-bold">{danfeData.impostos.vTotTrib}</span></div>
-                    <div className="col-span-3 p-1"><span className="block text-[5.5px] truncate">VALOR TOTAL DA NOTA</span><span className="block text-[9px] text-right font-black">R$ {danfeData.impostos.vNota}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">VALOR DO FRETE</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vFrete}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">VALOR DO SEGURO</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vSeguro}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">DESCONTO</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vDesc}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">OUTRAS DESP.</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vOutros}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">VALOR DO IPI</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vIpi}</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. ICMS UF DEST.</span><span className="block text-[9px] text-right font-bold">0,00</span></div>
+                    <div className="p-1 border-r border-black"><span className="block text-[7px] truncate">V. TOT. TRIB.</span><span className="block text-[9px] text-right font-bold">{danfeData.impostos.vTotTrib}</span></div>
+                    <div className="col-span-3 p-1"><span className="block text-[7.5px] truncate">VALOR TOTAL DA NOTA</span><span className="block text-[13px] text-right font-black">R$ {danfeData.impostos.vNota}</span></div>
                   </div>
                 </div>
 
-                {/* 7. Transportador */}
-                <h4 className="font-bold text-[6.5px] uppercase mt-1">Transportador / Volumes Transportados</h4>
+                <h4 className="font-bold text-[8.5px] uppercase mt-1">Transportador / Volumes Transportados</h4>
                 <div className="border border-black mb-1">
                   <div className="grid grid-cols-12 border-b border-black">
                     <div className="col-span-6 p-1 border-r border-black">
-                      <span className="block text-[6px]">RAZÃO SOCIAL</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.transportador.razaoSocial}</span>
+                      <span className="block text-[7.5px]">RAZÃO SOCIAL</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.transportador.razaoSocial}</span>
                     </div>
                     <div className="col-span-2 p-1 border-r border-black">
-                      <span className="block text-[6px]">FRETE POR CONTA</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.transportador.fretePorConta}</span>
+                      <span className="block text-[7.5px]">FRETE POR CONTA</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.transportador.fretePorConta}</span>
                     </div>
                     <div className="col-span-1 p-1 border-r border-black">
-                      <span className="block text-[6px]">CÓDIGO ANTT</span>
-                      <span className="font-bold text-[7.5px]">-</span>
+                      <span className="block text-[7.5px]">CÓDIGO ANTT</span>
+                      <span className="font-bold text-[9.5px]">-</span>
                     </div>
                     <div className="col-span-1 p-1 border-r border-black">
-                      <span className="block text-[6px]">PLACA</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.transportador.placa}</span>
+                      <span className="block text-[7.5px]">PLACA</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.transportador.placa}</span>
                     </div>
                     <div className="col-span-1 p-1 border-r border-black">
-                      <span className="block text-[6px]">UF</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.transportador.ufVeiculo}</span>
+                      <span className="block text-[7.5px]">UF</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.transportador.ufVeiculo}</span>
                     </div>
                     <div className="col-span-1 p-1">
-                      <span className="block text-[6px]">CNPJ / CPF</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.transportador.cnpjCpf}</span>
+                      <span className="block text-[7.5px]">CNPJ / CPF</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.transportador.cnpjCpf}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-12">
                     <div className="col-span-6 p-1 border-r border-black">
-                      <span className="block text-[6px]">ENDEREÇO</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.transportador.endereco}</span>
+                      <span className="block text-[7.5px]">ENDEREÇO</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.transportador.endereco}</span>
                     </div>
                     <div className="col-span-3 p-1 border-r border-black">
-                      <span className="block text-[6px]">MUNICÍPIO</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.transportador.municipio}</span>
+                      <span className="block text-[7.5px]">MUNICÍPIO</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.transportador.municipio}</span>
                     </div>
                     <div className="col-span-1 p-1 border-r border-black">
-                      <span className="block text-[6px]">UF</span>
-                      <span className="font-bold text-[7.5px] uppercase">{danfeData.transportador.uf}</span>
+                      <span className="block text-[7.5px]">UF</span>
+                      <span className="font-bold text-[9.5px] uppercase">{danfeData.transportador.uf}</span>
                     </div>
                     <div className="col-span-2 p-1">
-                      <span className="block text-[6px]">INSCRIÇÃO ESTADUAL</span>
-                      <span className="font-bold text-[7.5px]">{danfeData.transportador.ie}</span>
+                      <span className="block text-[7.5px]">INSCRIÇÃO ESTADUAL</span>
+                      <span className="font-bold text-[9.5px]">{danfeData.transportador.ie}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 8. Dados do Produto/Serviço */}
-                <h4 className="font-bold text-[6.5px] uppercase mt-1">Dados dos Produtos / Serviços</h4>
-                <div className="border border-black mb-1 min-h-[120px]">
+                <h4 className="font-bold text-[8.5px] uppercase mt-1">Dados dos Produtos / Serviços</h4>
+                <div className="border border-black mb-1 min-h-[140px]">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-black bg-gray-50 font-bold text-[5.5px]">
-                        <th className="border-r border-black p-0.5 w-[5%]">CÓD. PROD.</th>
-                        <th className="border-r border-black p-0.5 w-[30%]">DESCRIÇÃO DO PRODUTO / SERVIÇO</th>
-                        <th className="border-r border-black p-0.5">NCM/SH</th>
-                        <th className="border-r border-black p-0.5">CST</th>
-                        <th className="border-r border-black p-0.5">CFOP</th>
-                        <th className="border-r border-black p-0.5">UN.</th>
-                        <th className="border-r border-black p-0.5">QUANT.</th>
-                        <th className="border-r border-black p-0.5">V. UNIT.</th>
-                        <th className="border-r border-black p-0.5">V. TOTAL</th>
-                        <th className="border-r border-black p-0.5">BC ICMS</th>
-                        <th className="border-r border-black p-0.5">V. ICMS</th>
-                        <th className="border-r border-black p-0.5">V. IPI</th>
-                        <th className="border-r border-black p-0.5">AL. ICMS</th>
-                        <th className="p-0.5">AL. IPI</th>
+                      <tr className="border-b border-black bg-gray-50 font-bold text-[7px]">
+                        <th className="border-r border-black p-1 w-[6%]">CÓD. PROD.</th>
+                        <th className="border-r border-black p-1 w-[28%]">DESCRIÇÃO DO PRODUTO / SERVIÇO</th>
+                        <th className="border-r border-black p-1">NCM/SH</th>
+                        <th className="border-r border-black p-1">CST</th>
+                        <th className="border-r border-black p-1">CFOP</th>
+                        <th className="border-r border-black p-1">UN.</th>
+                        <th className="border-r border-black p-1">QUANT.</th>
+                        <th className="border-r border-black p-1">V. UNIT.</th>
+                        <th className="border-r border-black p-1">V. TOTAL</th>
+                        <th className="border-r border-black p-1">BC ICMS</th>
+                        <th className="border-r border-black p-1">V. ICMS</th>
+                        <th className="border-r border-black p-1">V. IPI</th>
+                        <th className="border-r border-black p-1">AL. ICMS</th>
+                        <th className="p-1">AL. IPI</th>
                       </tr>
                     </thead>
                     <tbody>
                       {danfeData.itens.map((item: any, i: number) => (
-                        <tr key={i} className="text-[6px] border-b border-gray-200">
-                          <td className="border-r border-black p-0.5">{item.cod}</td>
-                          <td className="border-r border-black p-0.5 uppercase truncate max-w-[180px]">{item.desc}</td>
-                          <td className="border-r border-black p-0.5">{item.ncm}</td>
-                          <td className="border-r border-black p-0.5">{item.cst}</td>
-                          <td className="border-r border-black p-0.5">{item.cfop}</td>
-                          <td className="border-r border-black p-0.5">{item.un}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.qtd}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.vUnit}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.vTotal}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.bcIcms}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.vIcms}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.vIpi}</td>
-                          <td className="border-r border-black p-0.5 text-right">{item.aliqIcms}</td>
-                          <td className="p-0.5 text-right">{item.aliqIpi}</td>
+                        <tr key={i} className="text-[7.5px] border-b border-gray-200">
+                          <td className="border-r border-black p-1">{item.cod}</td>
+                          <td className="border-r border-black p-1 uppercase truncate max-w-[200px]">{item.desc}</td>
+                          <td className="border-r border-black p-1">{item.ncm}</td>
+                          <td className="border-r border-black p-1">{item.cst}</td>
+                          <td className="border-r border-black p-1">{item.cfop}</td>
+                          <td className="border-r border-black p-1">{item.un}</td>
+                          <td className="border-r border-black p-1 text-right">{item.qtd}</td>
+                          <td className="border-r border-black p-1 text-right">{item.vUnit}</td>
+                          <td className="border-r border-black p-1 text-right">{item.vTotal}</td>
+                          <td className="border-r border-black p-1 text-right">{item.bcIcms}</td>
+                          <td className="border-r border-black p-1 text-right">{item.vIcms}</td>
+                          <td className="border-r border-black p-1 text-right">{item.vIpi}</td>
+                          <td className="border-r border-black p-1 text-right">{item.aliqIcms}</td>
+                          <td className="p-1 text-right">{item.aliqIpi}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
 
-                {/* 10. Dados Adicionais */}
-                <div className="grid grid-cols-12 border border-black min-h-[60px]">
+                <div className="grid grid-cols-12 border border-black min-h-[70px]">
                   <div className="col-span-8 p-1 border-r border-black">
-                    <span className="block text-[6px] font-bold">DADOS ADICIONAIS</span>
-                    <span className="block text-[5.5px] font-bold mt-1">INFORMAÇÕES COMPLEMENTARES</span>
-                    <p className="text-[5.5px] leading-tight text-justify mt-0.5">
+                    <span className="block text-[7.5px] font-bold">DADOS ADICIONAIS</span>
+                    <span className="block text-[7px] font-bold mt-1">INFORMAÇÕES COMPLEMENTARES</span>
+                    <p className="text-[7px] leading-tight text-justify mt-1">
                       {danfeData.infoComplementar}
                     </p>
                   </div>
                   <div className="col-span-4 p-1">
-                    <span className="block text-[6px] font-bold uppercase">Reservado ao Fisco</span>
+                    <span className="block text-[7.5px] font-bold uppercase">Reservado ao Fisco</span>
                   </div>
                 </div>
 
-                <div className="text-[5px] text-center mt-1 italic text-gray-500 print:block hidden">
+                <div className="text-[6px] text-center mt-2 italic text-gray-500 print:block hidden">
                   Este é um Documento Auxiliar da Nota Fiscal Eletrônica (DANFE) gerado eletronicamente via Consulta Pro em {new Date().toLocaleString('pt-BR')}.
                 </div>
 
