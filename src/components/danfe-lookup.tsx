@@ -241,12 +241,16 @@ export function DanfeLookup() {
                   </div>
                   <div className="col-span-5 p-2 flex flex-col justify-between">
                     <div className="w-full bg-white h-10 mb-1 flex items-center justify-center overflow-hidden">
-                      {/* Placeholder do Código de Barras */}
-                      <div className="w-full border-b-2 border-black flex h-full">
-                        {Array.from({length: 44}).map((_, i) => (
-                          <div key={i} className={`flex-1 ${i % 3 === 0 ? 'bg-black' : 'bg-white'} ${i % 5 === 0 ? 'w-1' : ''}`} />
-                        ))}
-                      </div>
+                      {/* Código de Barras (SVG para garantir impressão) */}
+                      <svg className="w-full h-8" viewBox="0 0 440 40" preserveAspectRatio="none">
+                        {Array.from({ length: 88 }).map((_, i) => {
+                          const isBlack = (i * 7) % 13 < 7; 
+                          const width = (i * 3) % 5 + 1;
+                          return isBlack ? (
+                            <rect key={i} x={i * 5} y="0" width={width} height="40" fill="black" />
+                          ) : null;
+                        })}
+                      </svg>
                     </div>
                     <div>
                       <span className="text-[6px] font-bold uppercase block">Chave de Acesso</span>
