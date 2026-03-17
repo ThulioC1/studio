@@ -7,7 +7,6 @@ import { Search, Loader2, FileText, Printer, ScanBarcode, AlertCircle } from 'lu
 import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { generateBarcode128C } from '@/lib/barcode-utils';
 
@@ -38,74 +37,93 @@ export function DanfeLookup() {
     setDanfeData(null);
 
     try {
+      // Simula latência de rede
       await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Gera dados dinâmicos baseados nos dígitos da chave para não parecer estático
+      const seed = parseInt(cleaned.substring(30, 34)) || 1234;
+      const valBase = (seed / 10).toFixed(2);
       
       const mockData = {
         chaveAcesso: cleaned,
-        numero: "352.223",
-        serie: "002",
+        numero: cleaned.substring(25, 34).replace(/^0+/, '') || "123.456",
+        serie: cleaned.substring(22, 25).replace(/^0+/, '') || "001",
         folha: "1/1",
-        dataEmissao: "16/03/2026",
-        naturezaOperacao: "Venda Merc Terc Outro Estado",
-        protocoloAutorizacao: "242260118482056 - 16/03/2026 14:57:27",
-        inscricaoEstadual: "256042942",
-        inscricaoMunicipal: "98214",
+        dataEmissao: new Date().toLocaleDateString('pt-BR'),
+        naturezaOperacao: seed % 2 === 0 ? "Venda de Mercadoria" : "Remessa para Industrialização",
+        protocoloAutorizacao: `1${cleaned.substring(0, 14)} - ${new Date().toLocaleString('pt-BR')}`,
+        inscricaoEstadual: cleaned.substring(10, 19),
+        inscricaoMunicipal: cleaned.substring(34, 39),
         emitente: {
-          nome: "BAZAM E PICHAU INFORMATICA LTDA",
-          cnpj: "09.376.495/0001-22",
-          endereco: "AV SANTOS DUMONT, 7199 - 7199",
-          bairro: "AVENTUREIRO",
-          cidade: "Joinville - SC",
-          cep: "89226-435",
-          fone: "(47) 3327-7636"
+          nome: seed % 3 === 0 ? "LOGISTICA BRASIL S.A." : seed % 3 === 1 ? "DISTRIBUIDORA VALE LTDA" : "TECNOLOGIA NORDESTE EIRELI",
+          cnpj: cleaned.substring(6, 20).replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5'),
+          endereco: "AVENIDA INDUSTRIAL, " + seed,
+          bairro: "DISTRITO INDUSTRIAL",
+          cidade: "São Paulo - SP",
+          cep: "01000-000",
+          fone: "(11) 4004-0000"
         },
         destinatario: {
-          nome: "THULIO COSTA",
-          cnpjCpf: "47.636.037/0001-74",
-          endereco: "RUA OTACILIO NEPOMUCENO, 600 - 500 AMLMF",
-          bairro: "CATOLE",
-          cep: "58410-160",
-          cidade: "Campina Grande",
+          nome: user?.displayName || "CLIENTE CONSUMIDOR FINAL",
+          cnpjCpf: "00.000.000/0001-00",
+          endereco: "RUA DAS FLORES, 100",
+          bairro: "CENTRO",
+          cep: "58000-000",
+          cidade: "João Pessoa",
           uf: "PB",
-          fone: "83993662978",
+          fone: "(83) 9999-9999",
           ie: "ISENTO"
         },
         impostos: {
-          bcIcms: "2.357,22",
-          vIcms: "165,00",
+          bcIcms: valBase,
+          vIcms: (parseFloat(valBase) * 0.12).toFixed(2),
           bcIcmsSt: "0,00",
           vIcmsSt: "0,00",
-          vProd: "2.092,49",
-          vFrete: "67,25",
+          vProd: (parseFloat(valBase) * 0.9).toFixed(2),
+          vFrete: "0,00",
           vSeguro: "0,00",
           vDesc: "0,00",
           vOutros: "0,00",
-          vIpi: "197,46",
-          vTotTrib: "573,68",
-          vNota: "2.357,22"
+          vIpi: "0,00",
+          vTotTrib: (parseFloat(valBase) * 0.31).toFixed(2),
+          vNota: valBase
         },
         transportador: {
-          razaoSocial: "BRASPRESS TRANSPORTES URGENTES LTDA",
+          razaoSocial: "TRANSPORTES RAPIDO LTDA",
           fretePorConta: "0-Por conta do Rem",
-          cnpjCpf: "48.740.351/0022-90",
-          placa: "ABC-1234",
+          cnpjCpf: "11.222.333/0001-44",
+          placa: "ABC-0000",
           ufVeiculo: "SP",
-          ie: "254999514",
-          endereco: "Rua Copacabana",
-          municipio: "JOINVILLE",
-          uf: "SC"
+          ie: "123456789",
+          endereco: "VIA ANHANGUERA KM 10",
+          municipio: "SAO PAULO",
+          uf: "SP"
         },
         volumes: {
-          quantidade: "2",
-          especie: "CAIXAS",
-          pesoBruto: "8,800",
-          pesoLiquido: "8,800"
+          quantidade: "1",
+          especie: "VOLUME",
+          pesoBruto: "1,500",
+          pesoLiquido: "1,450"
         },
         itens: [
-          { cod: "51621", desc: "Processador Intel Core i3-12100F, 4-Core, 8-Threads, 3.3GHz", ncm: "85423190", cst: "700", cfop: "6108", un: "UN", qtd: "1,0000", vUnit: "499,4600", vTotal: "499,46", bcIcms: "524,41", vIcms: "36,71", vIpi: "9,99", aliqIcms: "7,00", aliqIpi: "2,00" },
-          { cod: "99812", desc: "Memória Gamer 16GB DDR4 3200MHz RGB", ncm: "84733042", cst: "000", cfop: "6102", un: "UN", qtd: "2,0000", vUnit: "299,0000", vTotal: "598,00", bcIcms: "598,00", vIcms: "107,64", vIpi: "0,00", aliqIcms: "18,00", aliqIpi: "0,00" }
+          { 
+            cod: cleaned.substring(40, 44), 
+            desc: "PRODUTO REFERENTE A CHAVE " + cleaned.substring(0, 4), 
+            ncm: "85171231", 
+            cst: "000", 
+            cfop: "5102", 
+            un: "UN", 
+            qtd: "1,0000", 
+            vUnit: valBase, 
+            vTotal: valBase, 
+            bcIcms: valBase, 
+            vIcms: (parseFloat(valBase) * 0.12).toFixed(2), 
+            vIpi: "0,00", 
+            aliqIcms: "12,00", 
+            aliqIpi: "0,00" 
+          }
         ],
-        infoComplementar: "Inf. Contribuinte: A base de calculo sera reduzida , onforme: Artigo 33, inciso IX, do RICMS/PB|A base de calculo sera reduzida , onforme: Artigo 33, inciso IX, do RICMS/PB|A base de calculo sera reduzida , onforme: Artigo 33, inciso IX, do RICMS/PB|PEDIDO: 1012991460|A aceitacao desta mercadoria implica autorizacao do consumidor ao vendedor para obter a restituição de quaisquer tributos incidentes nesta operacao. Valor Aproximado dos Tributos : R$ 573,68"
+        infoComplementar: "Documento gerado para fins de demonstração técnica. Chave de acesso validada: " + cleaned
       };
 
       setDanfeData(mockData);
