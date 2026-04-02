@@ -1,39 +1,55 @@
+
 export interface CnpjPartner {
-  identificador_de_socio: number;
-  nome_socio: string;
-  cnpj_cpf_do_socio: string;
-  qualificacao_socio: string;
+  name: string;
+  role: {
+    text: string;
+  };
 }
 
-export interface CnpjCnae {
-  codigo: number;
-  descricao: string;
+export interface CnpjActivity {
+  text: string;
+  id?: string;
 }
 
 export interface CompanyData {
-  cnpj: string;
-  razao_social: string;
-  nome_fantasia?: string;
-  descricao_situacao_cadastral: string;
-  data_situacao_cadastral?: string;
-  data_inicio_atividade: string;
-  cnae_fiscal_descricao: string;
-  cnaes_secundarios: CnpjCnae[];
-  natureza_juridica: string;
-  logradouro: string;
-  numero: string;
-  complemento?: string;
-  bairro: string;
-  cep: string;
-  uf: string;
-  municipio: string;
-  capital_social: number;
-  porte: string;
-  qsa: CnpjPartner[];
-  // Novos campos de contato
-  ddd_telefone_1?: string;
-  ddd_telefone_2?: string;
-  email?: string;
+  taxId: string;
+  name: string;
+  alias?: string;
+  founded: string;
+  updated: string;
+  status: {
+    text: string;
+    date: string;
+  };
+  address: {
+    street: string;
+    number: string;
+    details?: string;
+    district: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: {
+      name: string;
+    };
+  };
+  phones: Array<{
+    area: string;
+    number: string;
+  }>;
+  emails: Array<{
+    address: string;
+  }>;
+  mainActivity: CnpjActivity;
+  sideActivities: CnpjActivity[];
+  legalNature: {
+    text: string;
+  };
+  size: {
+    text: string;
+  };
+  equity: number;
+  members: CnpjPartner[];
 }
 
 export function formatCnpj(cnpj: string): string {
@@ -54,13 +70,17 @@ export function formatCurrency(value: number): string {
 
 export function formatDate(dateStr: string): string {
   if (!dateStr) return '-';
-  const [year, month, day] = dateStr.split('-');
-  return `${day}/${month}/${year}`;
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('pt-BR');
+  } catch {
+    return dateStr;
+  }
 }
 
-export function formatPhone(ddd?: string, phone?: string): string {
-  if (!phone) return '-';
-  const full = ddd ? `${ddd}${phone}` : phone;
+export function formatPhone(area?: string, number?: string): string {
+  if (!number) return '-';
+  const full = area ? `${area}${number}` : number;
   const cleaned = full.replace(/\D/g, '');
   if (cleaned.length === 10) {
     return cleaned.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');

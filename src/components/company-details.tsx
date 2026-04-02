@@ -1,3 +1,4 @@
+
 "use client"
 
 import { CompanyData, formatCnpj, formatCurrency, formatDate, formatPhone } from '@/types/cnpj';
@@ -6,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataField } from './data-field';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building2, MapPin, Users, Activity, Phone, Printer } from 'lucide-react';
+import { Building2, MapPin, Users, Activity, Phone, Printer, Sparkles } from 'lucide-react';
+import { CompanyInsights } from './company-insights';
 
 interface CompanyDetailsProps {
   company: CompanyData;
@@ -17,20 +19,29 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
     window.print();
   };
 
+  const primaryEmail = company.emails?.[0]?.address;
+  const primaryPhone = company.phones?.[0] ? formatPhone(company.phones[0].area, company.phones[0].number) : undefined;
+
   return (
     <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header do Card com Botão de Imprimir */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-card rounded-2xl border shadow-sm print:border-none print:shadow-none print:p-0">
         <div className="space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-2xl font-bold text-primary">{company.razao_social}</h2>
-            <Badge variant={company.descricao_situacao_cadastral === 'ATIVA' ? 'default' : 'destructive'} className="rounded-full print:bg-black print:text-white">
-              {company.descricao_situacao_cadastral}
+            <h2 className="text-2xl font-bold text-primary">{company.name}</h2>
+            <Badge variant={company.status.text === 'Ativa' ? 'default' : 'destructive'} className="rounded-full print:bg-black print:text-white">
+              {company.status.text}
             </Badge>
           </div>
           <p className="text-muted-foreground font-medium">
-            {company.nome_fantasia || 'Sem nome fantasia'} • {formatCnpj(company.cnpj)}
+            {company.alias || 'Sem nome fantasia'} • {formatCnpj(company.taxId)}
           </p>
+          {(primaryEmail || primaryPhone) && (
+            <div className="flex flex-wrap gap-4 mt-2 text-sm text-primary font-medium print:hidden">
+              {primaryEmail && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {primaryEmail.toLowerCase()}</span>}
+              {primaryPhone && <span className="flex items-center gap-1"><Building2 className="h-3 w-3" /> {primaryPhone}</span>}
+            </div>
+          )}
         </div>
         <Button 
           onClick={handlePrint} 
@@ -40,6 +51,11 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
           <Printer className="h-4 w-4" />
           Imprimir PDF
         </Button>
+      </div>
+
+      {/* AI Insights Section */}
+      <div className="print:hidden">
+        <CompanyInsights company={company} />
       </div>
 
       {/* Visualização de Abas (Escondida na Impressão) */}
@@ -71,14 +87,14 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
           <TabsContent value="geral" className="space-y-4">
             <Card>
               <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DataField label="Razão Social" value={company.razao_social} />
-                <DataField label="CNPJ" value={formatCnpj(company.cnpj)} copyValue={company.cnpj} />
-                <DataField label="Nome Fantasia" value={company.nome_fantasia} />
-                <DataField label="Data de Abertura" value={formatDate(company.data_inicio_atividade)} />
-                <DataField label="Natureza Jurídica" value={company.natureza_juridica} />
-                <DataField label="Porte" value={company.porte} />
-                <DataField label="Capital Social" value={formatCurrency(company.capital_social)} />
-                <DataField label="Situação Cadastral" value={company.descricao_situacao_cadastral} />
+                <DataField label="Razão Social" value={company.name} />
+                <DataField label="CNPJ" value={formatCnpj(company.taxId)} copyValue={company.taxId} />
+                <DataField label="Nome Fantasia" value={company.alias} />
+                <DataField label="Data de Abertura" value={formatDate(company.founded)} />
+                <DataField label="Natureza Jurídica" value={company.legalNature.text} />
+                <DataField label="Porte" value={company.size.text} />
+                <DataField label="Capital Social" value={formatCurrency(company.equity)} />
+                <DataField label="Situação Cadastral" value={company.status.text} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -86,9 +102,15 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
           <TabsContent value="contato" className="space-y-4">
             <Card>
               <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DataField label="E-mail" value={company.email?.toLowerCase()} />
-                <DataField label="Telefone Principal" value={formatPhone(undefined, company.ddd_telefone_1)} />
-                <DataField label="Telefone Secundário" value={formatPhone(undefined, company.ddd_telefone_2)} />
+                {company.emails.map((e, i) => (
+                  <DataField key={i} label={`E-mail ${i + 1}`} value={e.address.toLowerCase()} />
+                ))}
+                {company.phones.map((p, i) => (
+                  <DataField key={i} label={`Telefone ${i + 1}`} value={formatPhone(p.area, p.number)} />
+                ))}
+                {company.emails.length === 0 && company.phones.length === 0 && (
+                  <p className="text-sm text-muted-foreground col-span-2 text-center py-4">Nenhum dado de contato disponível.</p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -101,16 +123,16 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
                     Atividade Principal
                   </h3>
                   <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
-                    <p className="text-sm font-medium">{company.cnae_fiscal_descricao}</p>
+                    <p className="text-sm font-medium">{company.mainActivity.text}</p>
                   </div>
                 </div>
-                {company.cnaes_secundarios.length > 0 && (
+                {company.sideActivities.length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold mb-3">Atividades Secundárias</h3>
                     <ul className="space-y-2">
-                      {company.cnaes_secundarios.map((cnae, i) => (
+                      {company.sideActivities.map((cnae, i) => (
                         <li key={i} className="text-sm p-3 border rounded-md bg-card">
-                          {cnae.descricao}
+                          {cnae.text}
                         </li>
                       ))}
                     </ul>
@@ -123,13 +145,13 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
           <TabsContent value="endereco" className="space-y-4">
             <Card>
               <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DataField label="Logradouro" value={company.logradouro} />
-                <DataField label="Número" value={company.numero} />
-                <DataField label="Complemento" value={company.complemento} />
-                <DataField label="Bairro" value={company.bairro} />
-                <DataField label="CEP" value={company.cep} />
-                <DataField label="Município" value={company.municipio} />
-                <DataField label="UF" value={company.uf} />
+                <DataField label="Logradouro" value={company.address.street} />
+                <DataField label="Número" value={company.address.number} />
+                <DataField label="Complemento" value={company.address.details} />
+                <DataField label="Bairro" value={company.address.district} />
+                <DataField label="CEP" value={company.address.zip} />
+                <DataField label="Município" value={company.address.city} />
+                <DataField label="UF" value={company.address.state} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -137,12 +159,12 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
           <TabsContent value="socios" className="space-y-4">
             <Card>
               <CardContent className="p-6">
-                {company.qsa.length > 0 ? (
+                {company.members.length > 0 ? (
                   <div className="space-y-4">
-                    {company.qsa.map((socio, i) => (
+                    {company.members.map((socio, i) => (
                       <div key={i} className="flex flex-col p-4 border rounded-md bg-card hover:bg-accent/5 transition-colors">
-                        <span className="text-sm font-bold text-primary">{socio.nome_socio}</span>
-                        <span className="text-xs text-muted-foreground">{socio.qualificacao_socio}</span>
+                        <span className="text-sm font-bold text-primary">{socio.name}</span>
+                        <span className="text-xs text-muted-foreground">{socio.role.text}</span>
                       </div>
                     ))}
                   </div>
@@ -161,41 +183,44 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
           <div className="border p-4 rounded-lg">
             <h3 className="text-sm font-bold border-b mb-2 pb-1 uppercase">Dados Gerais</h3>
             <div className="space-y-1 text-sm">
-              <p><strong>CNPJ:</strong> {formatCnpj(company.cnpj)}</p>
-              <p><strong>Razão Social:</strong> {company.razao_social}</p>
-              <p><strong>Nome Fantasia:</strong> {company.nome_fantasia || '-'}</p>
-              <p><strong>Abertura:</strong> {formatDate(company.data_inicio_atividade)}</p>
-              <p><strong>Situação:</strong> {company.descricao_situacao_cadastral}</p>
-              <p><strong>Capital Social:</strong> {formatCurrency(company.capital_social)}</p>
+              <p><strong>CNPJ:</strong> {formatCnpj(company.taxId)}</p>
+              <p><strong>Razão Social:</strong> {company.name}</p>
+              <p><strong>Nome Fantasia:</strong> {company.alias || '-'}</p>
+              <p><strong>Abertura:</strong> {formatDate(company.founded)}</p>
+              <p><strong>Situação:</strong> {company.status.text}</p>
+              <p><strong>Capital Social:</strong> {formatCurrency(company.equity)}</p>
             </div>
           </div>
           <div className="border p-4 rounded-lg">
             <h3 className="text-sm font-bold border-b mb-2 pb-1 uppercase">Contato</h3>
             <div className="space-y-1 text-sm">
-              <p><strong>E-mail:</strong> {company.email || '-'}</p>
-              <p><strong>Telefone 1:</strong> {formatPhone(undefined, company.ddd_telefone_1)}</p>
-              <p><strong>Telefone 2:</strong> {formatPhone(undefined, company.ddd_telefone_2)}</p>
+              {company.emails.map((e, i) => (
+                <p key={i}><strong>E-mail {i+1}:</strong> {e.address.toLowerCase()}</p>
+              ))}
+              {company.phones.map((p, i) => (
+                <p key={i}><strong>Telefone {i+1}:</strong> {formatPhone(p.area, p.number)}</p>
+              ))}
             </div>
           </div>
           <div className="border p-4 rounded-lg col-span-2">
             <h3 className="text-sm font-bold border-b mb-2 pb-1 uppercase">Endereço</h3>
             <p className="text-sm">
-              {company.logradouro}, {company.numero} {company.complemento ? `(${company.complemento})` : ''} - 
-              {company.bairro}, {company.municipio}/{company.uf} - CEP: {company.cep}
+              {company.address.street}, {company.address.number} {company.address.details ? `(${company.address.details})` : ''} - 
+              {company.address.district}, {company.address.city}/{company.address.state} - CEP: {company.address.zip}
             </p>
           </div>
           <div className="border p-4 rounded-lg col-span-2">
             <h3 className="text-sm font-bold border-b mb-2 pb-1 uppercase">Atividade Principal</h3>
-            <p className="text-sm">{company.cnae_fiscal_descricao}</p>
+            <p className="text-sm">{company.mainActivity.text}</p>
           </div>
-          {company.qsa.length > 0 && (
+          {company.members.length > 0 && (
             <div className="border p-4 rounded-lg col-span-2">
               <h3 className="text-sm font-bold border-b mb-2 pb-1 uppercase">Quadro de Sócios (QSA)</h3>
               <ul className="grid grid-cols-2 gap-2 mt-2">
-                {company.qsa.map((s, i) => (
+                {company.members.map((s, i) => (
                   <li key={i} className="text-xs border-b pb-1">
-                    <strong>{s.nome_socio}</strong><br/>
-                    <span className="text-muted-foreground">{s.qualificacao_socio}</span>
+                    <strong>{s.name}</strong><br/>
+                    <span className="text-muted-foreground">{s.role.text}</span>
                   </li>
                 ))}
               </ul>

@@ -49,8 +49,8 @@ export default function Home() {
       
       if (user) {
         addDoc(collection(db, 'user_profiles', user.uid, 'history'), {
-          cnpj: data.cnpj,
-          razaoSocial: data.razao_social,
+          cnpj: cleaned,
+          razaoSocial: data.name,
           timestamp: serverTimestamp()
         }).catch(() => {});
       }
@@ -90,7 +90,7 @@ export default function Home() {
               Consulta de Dados Empresariais
             </h1>
             <p className="text-muted-foreground max-w-2xl">
-              Pesquise CNPJs de forma rápida, visualize dados oficiais e imprima em PDF.
+              Pesquise CNPJs de forma rápida usando a API OpenCNPJ, visualize dados oficiais e insights IA.
             </p>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function Home() {
             {loading && (
               <div className="flex flex-col items-center justify-center py-20 space-y-6 bg-card rounded-2xl border border-dashed print:hidden">
                 <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-muted-foreground font-medium">Consultando base de dados oficial...</p>
+                <p className="text-muted-foreground font-medium">Consultando base de dados open.cnpja.com...</p>
               </div>
             )}
 
@@ -173,7 +173,7 @@ export default function Home() {
       </div>
 
       <footer className="mt-20 py-12 border-t text-center text-sm text-muted-foreground bg-card/30 print:hidden">
-        <p>© {new Date().getFullYear()} Consulta Pro. Dados públicos e consultas oficiais.</p>
+        <p>© {new Date().getFullYear()} Consulta Pro. Dados via open.cnpja.com.</p>
       </footer>
     </main>
   );

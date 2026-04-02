@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useEffect, useState } from 'react';
@@ -22,18 +23,18 @@ export function CompanyInsights({ company }: CompanyInsightsProps) {
       setError(null);
       try {
         const insights = await summarizeCompanyInsights({
-          cnpj: company.cnpj,
-          razaoSocial: company.razao_social,
-          nomeFantasia: company.nome_fantasia,
-          situacaoCadastral: company.descricao_situacao_cadastral,
-          dataSituacaoCadastral: company.data_situacao_cadastral,
-          atividadesPrincipais: [company.cnae_fiscal_descricao],
-          atividadesSecundarias: company.cnaes_secundarios.map(c => c.descricao),
-          naturezaJuridica: company.natureza_juridica,
-          endereco: `${company.logradouro}, ${company.numero}, ${company.bairro}, ${company.municipio} - ${company.uf}`,
-          dataAbertura: formatDate(company.data_inicio_atividade),
-          capitalSocial: company.capital_social.toString(),
-          porte: company.porte,
+          cnpj: company.taxId,
+          razaoSocial: company.name,
+          nomeFantasia: company.alias,
+          situacaoCadastral: company.status.text,
+          dataSituacaoCadastral: company.status.date,
+          atividadesPrincipais: [company.mainActivity.text],
+          atividadesSecundarias: company.sideActivities.map(c => c.text),
+          naturezaJuridica: company.legalNature.text,
+          endereco: `${company.address.street}, ${company.address.number}, ${company.address.district}, ${company.address.city} - ${company.address.state}`,
+          dataAbertura: formatDate(company.founded),
+          capitalSocial: company.equity.toString(),
+          porte: company.size.text,
         });
         setSummary(insights);
       } catch (err) {
