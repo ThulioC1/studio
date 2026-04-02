@@ -1,10 +1,9 @@
-
 "use client"
 
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Building, Loader2, Info } from 'lucide-react';
+import { Search, Building, Loader2, Info, Github, Laptop } from 'lucide-react';
 import { fetchCompanyData } from '@/services/cnpj-service';
 import { CompanyData } from '@/types/cnpj';
 import { CompanyDetails } from '@/components/company-details';
@@ -175,7 +174,20 @@ export default function Home() {
       </div>
 
       <footer className="mt-20 py-12 border-t text-center text-sm text-muted-foreground bg-card/30 print:hidden">
-        <p>© {new Date().getFullYear()} Consulta Pro. Dados via open.cnpja.com.</p>
+        <div className="max-w-7xl mx-auto px-4 space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-xs font-medium uppercase tracking-widest text-primary/60">
+            <span className="flex items-center gap-1.5">
+              <Laptop className="h-3.5 w-3.5" />
+              Desenvolvido por Thulio Costa
+            </span>
+            <span className="hidden sm:block opacity-20">|</span>
+            <span className="flex items-center gap-1.5">
+              <Github className="h-3.5 w-3.5" />
+              App Prototyper AI
+            </span>
+          </div>
+          <p>© {new Date().getFullYear()} Consulta Pro. Dados via open.cnpja.com.</p>
+        </div>
       </footer>
     </main>
   );

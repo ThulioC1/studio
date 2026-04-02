@@ -1,4 +1,3 @@
-
 "use client"
 
 import { CompanyData, formatCnpj, formatCurrency, formatDate, formatPhone } from '@/types/cnpj';
