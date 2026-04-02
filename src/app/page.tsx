@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react';
@@ -14,6 +15,7 @@ import { SearchHistory } from '@/components/search-history';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Home() {
   const [cnpj, setCnpj] = useState('');
@@ -80,7 +82,10 @@ export default function Home() {
             <Building className="h-6 w-6" />
             <span className="hidden sm:inline">Consulta Pro</span>
           </div>
-          <AuthButton />
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <AuthButton />
+          </div>
         </div>
       </header>
 
