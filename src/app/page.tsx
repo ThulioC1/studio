@@ -48,11 +48,14 @@ export default function Home() {
       setCompany(data);
       
       if (user) {
+        // Garantimos que nenhum campo seja undefined para evitar erro no Firestore
         addDoc(collection(db, 'user_profiles', user.uid, 'history'), {
           cnpj: cleaned,
-          razaoSocial: data.name,
+          razaoSocial: data?.name || 'Razão Social não informada',
           timestamp: serverTimestamp()
-        }).catch(() => {});
+        }).catch((err) => {
+          console.error("Erro ao salvar histórico:", err);
+        });
       }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro inesperado.');
