@@ -48,10 +48,9 @@ export default function Home() {
       setCompany(data);
       
       if (user) {
-        // Garantimos que nenhum campo seja undefined para evitar erro no Firestore
         addDoc(collection(db, 'user_profiles', user.uid, 'history'), {
           cnpj: cleaned,
-          razaoSocial: data?.name || 'Razão Social não informada',
+          razaoSocial: data?.company?.name || 'Razão Social não informada',
           timestamp: serverTimestamp()
         }).catch((err) => {
           console.error("Erro ao salvar histórico:", err);
@@ -93,7 +92,7 @@ export default function Home() {
               Consulta de Dados Empresariais
             </h1>
             <p className="text-muted-foreground max-w-2xl">
-              Pesquise CNPJs de forma rápida usando a API OpenCNPJ, visualize dados oficiais e insights IA.
+              Pesquise CNPJs de forma rápida usando a API OpenCNPJA e visualize dados oficiais da Receita Federal.
             </p>
           </div>
         </div>

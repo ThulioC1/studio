@@ -13,13 +13,25 @@ export interface CnpjActivity {
 
 export interface CompanyData {
   taxId: string;
-  name: string;
   alias?: string;
   founded: string;
   updated: string;
   status: {
     text: string;
     date: string;
+  };
+  // Dados aninhados conforme PowerShell
+  company: {
+    id: string | number;
+    name: string;
+    equity: number;
+    nature?: {
+      text: string;
+    };
+    size?: {
+      text: string;
+    };
+    members: CnpjPartner[];
   };
   address: {
     street: string;
@@ -29,7 +41,7 @@ export interface CompanyData {
     city: string;
     state: string;
     zip: string;
-    country: {
+    country?: {
       name: string;
     };
   };
@@ -42,17 +54,10 @@ export interface CompanyData {
   }>;
   mainActivity: CnpjActivity;
   sideActivities: CnpjActivity[];
-  legalNature: {
-    text: string;
-  };
-  size: {
-    text: string;
-  };
-  equity: number;
-  members: CnpjPartner[];
 }
 
 export function formatCnpj(cnpj: string): string {
+  if (!cnpj) return '-';
   const cleaned = cnpj.replace(/\D/g, '');
   if (cleaned.length !== 14) return cnpj;
   return cleaned.replace(
