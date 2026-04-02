@@ -8,7 +8,6 @@ import { DataField } from './data-field';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Building2, MapPin, Users, Activity, Phone, Printer } from 'lucide-react';
-import { CompanyInsights } from './company-insights';
 
 interface CompanyDetailsProps {
   company: CompanyData;
@@ -25,11 +24,11 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
 
   return (
     <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header do Card com Botão de Imprimir */}
+      {/* Header do Card */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-card rounded-2xl border shadow-sm print:border-none print:shadow-none print:p-0">
         <div className="space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-2xl font-bold text-primary">{company?.name || 'N/A'}</h2>
+            <h2 className="text-2xl font-bold text-primary">{company?.name || 'Razão Social não informada'}</h2>
             <Badge variant={statusText === 'Ativa' ? 'default' : 'destructive'} className="rounded-full print:bg-black print:text-white">
               {statusText}
             </Badge>
@@ -54,12 +53,7 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
         </Button>
       </div>
 
-      {/* AI Insights Section */}
-      <div className="print:hidden">
-        <CompanyInsights company={company} />
-      </div>
-
-      {/* Visualização de Abas (Escondida na Impressão) */}
+      {/* Visualização de Abas */}
       <div className="w-full print:hidden">
         <Tabs defaultValue="geral" className="w-full">
           <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-6">
@@ -178,7 +172,7 @@ export function CompanyDetails({ company }: CompanyDetailsProps) {
         </Tabs>
       </div>
 
-      {/* Layout de Impressão (Aparece apenas no PDF/Impressora) */}
+      {/* Layout de Impressão */}
       <div className="hidden print:block space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="border p-4 rounded-lg">

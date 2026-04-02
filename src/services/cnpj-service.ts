@@ -2,10 +2,12 @@
 'use server';
 
 import { CompanyData } from '@/types/cnpj';
+// @ts-ignore - O SDK pode não ter tipos TS definitivos ainda
+import { CnpjaOpen } from '@cnpja/sdk';
 
 /**
- * Busca dados de uma empresa através do CNPJ utilizando a API open.cnpja.com.
- * Implementado como Server Action para evitar problemas de CORS.
+ * Busca dados de uma empresa utilizando o SDK oficial da open.cnpja.com.
+ * Implementado como Server Action para garantir segurança e evitar CORS.
  */
 export async function fetchCompanyData(cnpj: string): Promise<CompanyData> {
   const cleanedCnpj = cnpj.replace(/\D/g, '');
@@ -15,30 +17,26 @@ export async function fetchCompanyData(cnpj: string): Promise<CompanyData> {
   }
 
   try {
-    const response = await fetch(`https://open.cnpja.com/office/${cleanedCnpj}`, {
-      headers: {
-        'Accept': 'application/json',
-      },
-      next: { revalidate: 3600 } // Cache de 1 hora
-    });
+    const cnpja = new CnpjaOpen();
+    // A API gratuita da OpenCNPJA às vezes exige zeros à esquerda se o CNPJ começar com zero.
+    const office = await cnpja.office.read({ taxId: cleanedCnpj });
     
-    if (!response.ok) {
-      if (response.status === 404) {
-        throw new Error('Empresa não encontrada para o CNPJ informado.');
-      }
-      if (response.status === 429) {
-        throw new Error('Limite de consultas excedido. Tente novamente mais tarde.');
-      }
-      throw new Error('O serviço de dados está temporariamente instável.');
+    if (!office || (typeof office === 'object' && Object.keys(office).length === 0)) {
+      throw new Error('Nenhum dado retornado para este CNPJ.');
     }
 
-    const data = await response.json();
-    return data;
+    return office as CompanyData;
   } catch (error: any) {
-    console.error('Erro na busca de CNPJ:', error);
-    if (error.message.includes('fetch')) {
-      throw new Error('Não foi possível conectar ao serviço de dados.');
+    console.error('Erro na busca de CNPJ via SDK:', error);
+    
+    if (error.status === 404 || error.message?.includes('not found')) {
+      throw new Error('Empresa não encontrada para o CNPJ informado.');
     }
-    throw error;
+    
+    if (error.status === 429) {
+      throw new Error('Limite de consultas excedido pela API OpenCNPJA.');
+    }
+
+    throw new Error(error.message || 'Ocorreu um erro ao consultar a base da Receita Federal.');
   }
 }

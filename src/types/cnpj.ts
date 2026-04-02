@@ -62,6 +62,7 @@ export function formatCnpj(cnpj: string): string {
 }
 
 export function formatCurrency(value: number): string {
+  if (value === undefined || value === null) return 'R$ 0,00';
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -72,6 +73,7 @@ export function formatDate(dateStr: string): string {
   if (!dateStr) return '-';
   try {
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
     return date.toLocaleDateString('pt-BR');
   } catch {
     return dateStr;
